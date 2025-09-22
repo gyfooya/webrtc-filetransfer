@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2P FILE TRANSFER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      margin-right: 0.75rem;
+      color: var(--primary);
+    }
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-input:disabled {
+      background: var(--gray-100);
+      cursor: not-allowed;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      min-height: 48px;
+    }
+
+    .btn i {
+      margin-right: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      .grid-cols-3,
+      .grid-cols-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 0.875rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .file-item {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .file-item:hover {
+      background: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .file-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .file-header i {
+      font-size: 1.25rem;
+      margin-right: 0.75rem;
+    }
+
+    .file-header h4 {
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+
+    .status-badge.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-badge.info {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--gray-500);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 1.125rem;
+    }
+
+    .connection-status {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1000;
+    }
+
+    .connection-status.connected {
+      display: flex;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .connection-status i {
+      font-size: 1.25rem;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Connection Status Indicator -->
+  <div id="connectionStatus" class="connection-status">
+    <i class="fas fa-check-circle"></i>
+    <span>Connected & Ready</span>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><i class="fas fa-share-alt"></i> WebRTC FILE TRANSFER</h1>
+      <p>Secure peer-to-peer file sharing without hosting server</p>
+    </div>
+
+    <!-- 1. Connection Setup -->
+    <div class="card fade-in">
+      <div class="card-header">
+        <i class="fas fa-network-wired"></i>
+        <h2>1. Connection Setup</h2>
+      </div>
+      <div class="grid grid-cols-3">
+        <button id="createOffer" class="btn btn-primary">
+          <i class="fas fa-paper-plane"></i>Create Offer
+        </button>
+        <button id="createAnswer" class="btn btn-warning">
+          <i class="fas fa-reply"></i>Create Answer
+        </button>
+        <button id="setRemote" class="btn btn-success">
+          <i class="fas fa-link"></i>Connect
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Session Exchange -->
+    <div class="card fade-in">
+      <div class="card-header">
+        <i class="fas fa-code"></i>
+        <h2>2. Session Exchange</h2>
+      </div>
+      <div class="grid grid-cols-2">
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label class="form-label" style="margin-bottom: 0;">Your session data</label>
+          </div>
+          <textarea id="localSDP" placeholder="Your session data will appear here..." class="form-input textarea" readonly></textarea>
+          <button id="copyLocalSDP" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;  margin-top: 0.5rem;" disabled>
+          <i class="fas fa-copy"></i>Copy
+            </button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Peer session data</label>
+          <textarea id="remoteSDP" placeholder="Paste the other person's session data here..." class="form-input textarea"></textarea>
+          <button id="pasteRemoteSDP" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.875rem; margin-top: 0.5rem;">
+            <i class="fas fa-paste"></i>Paste
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Select Files -->
+    <div class="card fade-in">
+      <div class="card-header">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h2>3. Select Files</h2>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Choose files to send</label>
+        <input type="file" id="fileInput" multiple disabled class="form-input">
+      </div>
+    </div>
+
+    <!-- 4. Transfer Progress -->
+    <div class="card fade-in">
+      <div class="card-header">
+        <i class="fas fa-tasks"></i>
+        <h2>4. Transfer Progress</h2>
+      </div>
+      <div id="progressContainer"></div>
+      <div id="noProgress" class="empty-state">
+        <i class="fas fa-clock"></i>
+        <p>Waiting for transfers...</p>
+      </div>
+    </div>
+
+    <!-- 5. Downloaded Files -->
+    <div class="card fade-in">
+      <div class="card-header">
+        <i class="fas fa-download"></i>
+        <h2>5. Downloaded Files</h2>
+      </div>
+      <div id="download"></div>
+      <div id="noFiles" class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <p>No files downloaded yet</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let pc, channel;
+
+    async function setupConnection(isOfferer) {
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      pc.onicecandidate = (event) => {
+        if (!event.candidate) {
+          document.getElementById("localSDP").value = JSON.stringify(pc.localDescription);
+          // Enable copy button when SDP is ready
+          document.getElementById("copyLocalSDP").disabled = false;
+        }
+      };
+
+      pc.ondatachannel = (event) => {
+        channel = event.channel;
+        channel.binaryType = "arraybuffer";
+        setupChannel();
+      };
+
+      if (isOfferer) {
+        channel = pc.createDataChannel("fileTransfer", { ordered: true });
+        channel.binaryType = "arraybuffer";
+        setupChannel();
+      }
+    }
+
+    function setupChannel() {
+      channel.onopen = () => {
+        console.log("DataChannel open, ready to send/receive");
+        document.getElementById("fileInput").disabled = false;
+
+        // Show connection status
+        const connectionStatus = document.getElementById("connectionStatus");
+        connectionStatus.classList.add("connected");
+
+        const noProgress = document.getElementById("noProgress");
+        if (noProgress) {
+          noProgress.innerHTML = '<i class="fas fa-check-circle"></i><p>Ready to transfer files</p>';
+        }
+      };
+
+      let chunks = [];
+      let total = 0;
+      let expectedSize = 0;
+      let fileName = "";
+      let startTime = 0;
+      let progress, progressText, statusBadge;
+
+      channel.onmessage = (ev) => {
+        if (typeof ev.data === "string") {
+          const meta = JSON.parse(ev.data);
+
+          if (meta.done) {
+            const blob = new Blob(chunks);
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.className = "btn btn-success fade-in";
+            link.style.width = "100%";
+            link.style.marginBottom = "1rem";
+            link.innerHTML = `<i class="fas fa-download"></i>Download ${fileName}`;
+
+            const downloadContainer = document.getElementById("download");
+            downloadContainer.appendChild(link);
+
+            // Hide "no files" message
+            const noFiles = document.getElementById("noFiles");
+            if (noFiles) noFiles.style.display = "none";
+
+            if (progress) {
+              progress.style.width = "100%";
+              if (statusBadge) {
+                statusBadge.className = "status-badge success";
+                statusBadge.innerHTML = '<i class="fas fa-check"></i> Complete';
+              }
+            }
+
+            console.log(`File received: ${fileName}`);
+
+            chunks = [];
+            total = 0;
+            expectedSize = 0;
+            fileName = "";
+            progress = null;
+            progressText = null;
+          } else {
+            // metadata
+            expectedSize = meta.size;
+            fileName = meta.name;
+            startTime = Date.now();
+
+            const container = document.getElementById("progressContainer");
+            const div = document.createElement("div");
+            div.className = "file-item fade-in";
+            div.innerHTML = `
+              <div class="file-header">
+                <i class="fas fa-download" style="color: var(--primary);"></i>
+                <h4>Receiving ${fileName}</h4>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="status-badge info">Starting...</span>
+                <small style="color: var(--gray-500);">0% complete</small>
+              </div>`;
+            container.appendChild(div);
+
+            // Hide "no progress" message
+            const noProgress = document.getElementById("noProgress");
+            if (noProgress && noProgress.style.display !== "none") {
+              noProgress.style.display = "none";
+            }
+
+            progress = div.querySelector(".progress-fill");
+            progressText = div.querySelector("small");
+            statusBadge = div.querySelector(".status-badge");
+          }
+        } else {
+          // binary chunk received
+          chunks.push(ev.data);
+          const chunkSize = ev.data.byteLength ?? 0;
+          total += chunkSize;
+
+          if (expectedSize > 0 && progress) {
+            const percent = ((total / expectedSize) * 100).toFixed(1);
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speed = (total / 1024 / elapsed).toFixed(1);
+            progress.style.width = `${percent}%`;
+            progressText.textContent = `${percent}% complete`;
+            if (statusBadge) {
+              statusBadge.textContent = `${speed} KB/s`;
+            }
+          }
+        }
+      };
+    }
+
+    async function createOffer() {
+      await setupConnection(true);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+    }
+
+    async function createAnswer() {
+      await setupConnection(false);
+      const offer = JSON.parse(document.getElementById("remoteSDP").value);
+      await pc.setRemoteDescription(offer);
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+    }
+
+    async function setRemote() {
+      const remote = JSON.parse(document.getElementById("remoteSDP").value);
+      await pc.setRemoteDescription(remote);
+    }
+
+    document.getElementById("fileInput").onchange = async (e) => {
+      if (!channel) return;
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        await sendFile(file);
+      }
+    };
+
+    async function sendFile(file) {
+      const reader = file.stream().getReader();
+      let offset = 0;
+
+      channel.send(JSON.stringify({ name: file.name, size: file.size }));
+
+      const container = document.getElementById("progressContainer");
+      const div = document.createElement("div");
+      div.className = "file-item fade-in";
+      div.innerHTML = `
+        <div class="file-header">
+          <i class="fas fa-upload" style="color: var(--success);"></i>
+          <h4>Sending ${file.name}</h4>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--success), #34d399);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="status-badge info">Starting...</span>
+          <small style="color: var(--gray-500);">0% complete</small>
+        </div>`;
+      container.appendChild(div);
+
+      // Hide "no progress" message
+      const noProgress = document.getElementById("noProgress");
+      if (noProgress && noProgress.style.display !== "none") {
+        noProgress.style.display = "none";
+      }
+
+      const progress = div.querySelector(".progress-fill");
+      const progressText = div.querySelector("small");
+      const statusBadge = div.querySelector(".status-badge");
+      const startTime = Date.now();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        while (channel.bufferedAmount > 1e6) {
+          await new Promise(r => channel.onbufferedamountlow = r);
+        }
+
+        channel.send(value);
+        offset += value.byteLength ?? value.length ?? 0;
+
+        const percent = ((offset / file.size) * 100).toFixed(1);
+        const elapsed = (Date.now() - startTime) / 1000;
+        const speed = (offset / 1024 / elapsed).toFixed(1);
+        progress.style.width = `${percent}%`;
+        progressText.textContent = `${percent}% complete`;
+        if (statusBadge) {
+          statusBadge.textContent = `${speed} KB/s`;
+        }
+      }
+
+      channel.send(JSON.stringify({ done: true }));
+      console.log(`File ${file.name} sent.`);
+
+      // Mark as completed
+      progress.style.width = "100%";
+      progressText.textContent = "100% complete";
+      if (statusBadge) {
+        statusBadge.className = "status-badge success";
+        statusBadge.innerHTML = '<i class="fas fa-check"></i> Complete';
+      }
+    }
+
+    document.getElementById("createOffer").onclick = createOffer;
+    document.getElementById("createAnswer").onclick = createAnswer;
+    document.getElementById("setRemote").onclick = setRemote;
+
+    // Copy button functionality
+    document.getElementById("copyLocalSDP").onclick = async () => {
+      const localSDP = document.getElementById("localSDP").value;
+      if (localSDP) {
+        try {
+          await navigator.clipboard.writeText(localSDP);
+          const button = document.getElementById("copyLocalSDP");
+          const originalText = button.innerHTML;
+          button.innerHTML = '<i class="fas fa-check"></i>Copied!';
+          button.style.background = 'var(--success)';
+          setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.background = 'var(--primary)';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy: ', err);
+          // Fallback for older browsers
+          document.getElementById("localSDP").select();
+          document.execCommand('copy');
+        }
+      }
+    };
+
+    // Paste button functionality
+    document.getElementById("pasteRemoteSDP").onclick = async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById("remoteSDP").value = text;
+        const button = document.getElementById("pasteRemoteSDP");
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>Pasted!';
+        button.style.background = '#059669';
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.background = 'var(--success)';
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to paste: ', err);
+        // Show error feedback
+        const button = document.getElementById("pasteRemoteSDP");
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-exclamation"></i>Paste manually';
+        button.style.background = 'var(--error)';
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.background = 'var(--success)';
+        }, 3000);
+      }
+    };
+  </script>
+</body>
+</html>
