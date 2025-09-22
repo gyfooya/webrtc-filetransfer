@@ -6,8 +6,13 @@ How to :
 
 Open two tabs in your browser.
 
-Peer A: click Create Offer → copy Your Session Data → paste into Peer B Peer Session Data.
-Peer B: click Create Answer → copy Your Session Data → paste into Peer A Peer Session Data.
+Peer A: click Create Offer
+  copy Your Session Data
+      paste into Peer B Peer Session Data.
+      
+Peer B: click Create Answer
+  copy Your Session Data
+      paste into Peer A Peer Session Data.
 
 Click Connect Peer A.
 
